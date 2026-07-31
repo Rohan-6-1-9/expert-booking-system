@@ -24,12 +24,21 @@ export function useExperts(params) {
     try {
       const res = await expertsApi.getAll({ ...params, signal: controller.signal })
       const data = res.data
+      console.log("Hook loaded - totalPages =", data.pagination?.totalPages);
       setExperts(data.experts || data.data || [])
-      setPagination({
-        page: data.page || params.page || 1,
-        totalPages: data.totalPages || 1,
-        total: data.total || data.count || 0,
-      })
+      /* setPagination({
+        page: data.pagination?.page || params.page || 1,
+        totalPages: data.pagination?.totalPages || 1,
+        total: data.pagination?.total || data.total || data.count || 0,
+      }) */
+      const paginationData = {
+        page: data.pagination?.page || params.page || 1,
+        totalPages: data.pagination?.totalPages || 1,
+        total: data.pagination?.total || data.total || data.count || 0,
+      };
+      console.log("Pagination being set:", paginationData)
+
+      setPagination(paginationData)
     } catch (err) {
       if (err.name !== 'CanceledError' && err.message !== 'canceled') {
         setError(err.message)
@@ -126,8 +135,8 @@ export function useBookings(email) {
     try {
       const res = await bookingsApi.getMyBookings(email)
       const bookingData = Array.isArray(res.data?.data)
-  ? res.data.data
-  : []
+        ? res.data.data
+        : []
 
       setBookings(Array.isArray(bookingData) ? bookingData : [])
     } catch (err) {
